@@ -73,7 +73,7 @@
             html += `
             <div class="audio-row">
                 <span>${v.label}</span>
-                <audio id="aud_${qNum}_${idx}" src="Audio/${v.id}.mp3"></audio>
+                <audio id="aud_${qNum}_${idx}" src="${v.id}.mp3"></audio>
                 <button type="button" class="play-btn" onclick="playAudio('aud_${qNum}_${idx}')">▶ 播放</button>
                 <div style="display:flex; gap:5px;">
                     ${[1,2,3,4,5].map(n => `<label><input type="radio" name="q${qNum}_v${idx+1}" value="${n}" required>${n}</label>`).join('')}
