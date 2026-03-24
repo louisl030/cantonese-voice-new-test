@@ -1,202 +1,51 @@
-<!DOCTYPE html>
+<å!DOCTYPE html>
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>粵語語音合成停頓因素測試</title>
     <style>
-        /* 基礎樣式與字體優化 */
-        :root {
-            --primary-color: #0056b3;
-            --secondary-color: #f8f9fa;
-            --accent-color: #28a745;
-            --text-dark: #2c3e50;
-            --bg-light: #f4f7f9;
-        }
-
-        body {
-            font-family: 'PingFang HK', 'Microsoft JhengHei', -apple-system, sans-serif;
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            margin: 0;
-            padding: 20px;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 850px;
-            margin: 0 auto;
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        }
-
-        /* 標題與導言區 */
-        header {
-            text-align: center;
-            border-bottom: 2px solid #eee;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-        }
-
-        h1 { color: var(--primary-color); margin-bottom: 10px; }
-        .intro-box {
-            background: #e9f2ff;
-            padding: 20px;
-            border-radius: 8px;
-            font-size: 0.95em;
-            color: #444;
-            border-left: 5px solid var(--primary-color);
-        }
-
-        /* 姓名區 */
-        .name-section {
-            margin: 30px 0;
-            padding: 20px;
-            background: var(--secondary-color);
-            border-radius: 10px;
-        }
-        .name-input {
-            width: 100%;
-            max-width: 300px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            margin-top: 10px;
-        }
-
-        /* 題目卡片 */
-        .question-card {
-            background: #fff;
-            border: 1px solid #eaeaea;
-            padding: 25px;
-            margin-bottom: 30px;
-            border-radius: 12px;
-            transition: transform 0.2s;
-        }
-        .question-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .question-header { font-weight: bold; color: var(--primary-color); margin-bottom: 15px; font-size: 1.2em; border-bottom: 1px solid #f0f0f0; padding-bottom: 5px; }
-        
-        .text-content {
-            background: #fffbe6;
-            padding: 15px;
-            border-radius: 8px;
-            color: #555;
-            font-weight: 500;
-            margin-bottom: 20px;
-            border: 1px dashed #ffe58f;
-        }
-
-        /* 錄音行樣式 */
-        .audio-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #f9f9f9;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        .version-label { font-weight: 600; min-width: 80px; }
-        
-        .play-btn {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 8px 18px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: 0.2s;
-        }
-        .play-btn:hover { background-color: #218838; opacity: 0.9; }
-
-        /* 評分區 */
-        .rating-group { display: flex; align-items: center; gap: 12px; }
-        .rating-group label {
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 0.85em;
-        }
-        .rating-group input { width: 18px; height: 18px; margin-bottom: 4px; cursor: pointer; }
-
-        /* 感謝與提交 */
-        .thanks-box {
-            margin-top: 50px;
-            text-align: center;
-            padding: 30px;
-            border-top: 2px solid #eee;
-        }
-        .submit-btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 18px 60px;
-            border-radius: 30px;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,86,179,0.3);
-            transition: 0.3s;
-        }
-        .submit-btn:hover { transform: scale(1.05); background-color: #004494; }
-        .submit-btn:disabled { background-color: #ccc; cursor: not-allowed; }
-
-        @media (max-width: 600px) {
-            .audio-row { flex-direction: column; align-items: flex-start; }
-            .rating-group { width: 100%; justify-content: space-between; }
-        }
+        body { font-family: 'PingFang HK', 'Microsoft JhengHei', sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #f4f7f6; line-height: 1.6; }
+        .container { background-color: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 10px; }
+        .intro { background: #eef2f3; padding: 20px; border-radius: 8px; margin-bottom: 30px; font-size: 0.95em; color: #444; }
+        .name-section { margin-bottom: 40px; padding: 20px; border-left: 5px solid #007BFF; background: #f0f7ff; }
+        .name-input { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
+        .question-card { border: 1px solid #eee; padding: 25px; margin-bottom: 30px; border-radius: 10px; background: #fff; }
+        .text-content { background: #fff9c4; padding: 15px; border-radius: 5px; font-weight: bold; margin-bottom: 20px; color: #333; border-left: 4px solid #fbc02d; font-size: 1.1em; }
+        .audio-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #eee; flex-wrap: wrap; }
+        .play-btn { background: #4CAF50; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 14px; }
+        .rating-group { display: flex; gap: 12px; align-items: center; }
+        .submit-btn { width: 100%; padding: 18px; background-color: #007BFF; color: white; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <h1>粵語語音合成停頓因素測試</h1>
-        <p>Cantonese TTS Pause Factor Evaluation</p>
-    </header>
-
-    <div class="intro-box">
-        <strong>測試說明：</strong><br>
-        感謝參與本次語音合成研究！請依次聆聽下列 15 組句子，每組句子有三個不同的合成版本。
-        請根據<b>「理解的輕鬆程度」</b>與<b>「聽感舒適度」</b>，為每個版本給予評分。<br>
-        (1分：非常不滿意 ➔ 5分：非常滿意)
+    <h1>粵語語音合成停頓因素測試</h1>
+    
+    <div class="intro">
+        <p>感謝參與測試！請聆聽以下錄音，並根據「能否輕鬆理解內容」及「聽起來是否舒服」給予 1 到 5 分的評價。</p>
+        <p><strong>1分：</strong>不清楚/不舒適 ➔ <strong>5分：</strong>非常清楚/非常舒適</p>
     </div>
 
     <form id="testForm">
         <div class="name-section">
-            <label><strong>1. 您的姓名：</strong></label><br>
-            <input type="text" name="testerName" class="name-input" required placeholder="請輸入姓名以作記錄">
+            <label for="testerName"><strong>您的姓名：</strong></label>
+            <input type="text" id="testerName" name="testerName" class="name-input" required placeholder="請輸入姓名">
         </div>
 
-        <div id="mainContent">
-            </div>
+        <div id="questionsContainer"></div>
 
-        <div class="thanks-box">
-            <p style="color: #666; margin-bottom: 20px;">您的寶貴意見將極大幫助我們的研究，再次感謝您的支持！</p>
-            <button type="submit" class="submit-btn" id="submitBtn">提交所有評分</button>
-        </div>
+        <button type="submit" class="submit-btn" id="submitBtn">提交測試結果</button>
     </form>
 </div>
 
 <script>
-    // --------------------------------------------------
-    // ⚠️ 關鍵設定區
-    // --------------------------------------------------
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwCTcvQkhGnLRIEZJsFMswk-8cflJ-3jAScv-2TFsn3wxwBsTLhnvlZFJmp5nEJIWvXYw/exec'; // 填入你的 Google 網址
-    
-    // 如果你的錄音檔在一個名為 Audio 的資料夾裡，請保持 'Audio/'
-    // 如果你的錄音檔直接跟 index.html 放在一起，請把下面改為 '' (留空)
-    const AUDIO_FOLDER = ''; 
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLcobTigtPqExaltUa-7lCy9wsFg6GUpmnCJHcjSb5SUl9M2dmEQn2da9GVbZi4s57yQ/exec';
 
-    const myTexts = [
+    // 從你提供的 XLSX 檔案提取的文本
+    const questionTexts = [
         "記得朝早八點食兩粒血壓藥。食完藥半個鐘後量一次血壓，記錄低。如果血壓高過一百四，就要打電話通知護士。",
         "小心血糖唔好升太高。千祈唔好食甜嘢，包括蛋糕、奶茶同朱古力。食完飯兩個鐘後可以量一次血糖。",
         "醫生講咗要聽日九點去醫院覆診。記得帶住綠色病歷簿、身份證同最近七日嘅藥單。遲到可能會取消預約。",
@@ -214,81 +63,69 @@
         "覆診時間改咗，係後日十點。請準時到診所，帶住最新嘅藥袋。遲到十五分鐘可能會取消預約。"
     ];
 
-    // --------------------------------------------------
-    // 動態生成畫面
-    // --------------------------------------------------
-    const main = document.getElementById('mainContent');
+    const container = document.getElementById('questionsContainer');
 
-    myTexts.forEach((txt, i) => {
-        const qNum = i + 1;
-        const card = document.createElement('div');
-        card.className = 'question-card';
+    for (let i = 1; i <= 15; i++) {
+        const qCard = document.createElement('div');
+        qCard.className = 'question-card';
         
-        let html = `<div class="question-header">第 ${qNum} 組測試</div>
-                    <div class="text-content">「${txt}」</div>`;
-        
-        const versions = [
-            { id: `N${qNum}`, label: '合成版本 A' },
-            { id: `P${qNum}_v1`, label: '合成版本 B' },
-            { id: `P${qNum}_v2`, label: '合成版本 C' }
+        // 根據要求設定檔名：Nx, Px_v1, Px_v2
+        const audioFiles = [
+            { id: `N${i}`, label: "錄音版本 1" },
+            { id: `P${i}_v1`, label: "錄音版本 2" },
+            { id: `P${i}_v2`, label: "錄音版本 3" }
         ];
 
-        versions.forEach((v, idx) => {
-            const audioPath = `${AUDIO_FOLDER}${v.id}.mp3`;
-            html += `
-            <div class="audio-row">
-                <span class="version-label">${v.label}</span>
-                <audio id="aud_${qNum}_${idx}" src="${audioPath}"></audio>
-                <button type="button" class="play-btn" onclick="playAudio('aud_${qNum}_${idx}')"><span>▶</span> 點擊播放</button>
-                <div class="rating-group">
-                    ${[1,2,3,4,5].map(n => `
-                        <label><input type="radio" name="q${qNum}_v${idx+1}" value="${n}" required>${n}</label>
-                    `).join('')}
-                    <span style="font-size:12px; color:#999; margin-left:5px;">(評分)</span>
+        let audioRowsHtml = '';
+        audioFiles.forEach((file, index) => {
+            audioRowsHtml += `
+                <div class="audio-item">
+                    <div>
+                        <strong>${file.label}：</strong>
+                        <audio id="audio_${i}_${index}" src="Audio/${file.id}.mp3"></audio>
+                        <button type="button" class="play-btn" onclick="document.getElementById('audio_${i}_${index}').play()">▶ 播放聲音</button>
+                    </div>
+                    <div class="rating-group">
+                        ${[1,2,3,4,5].map(num => `
+                            <label><input type="radio" name="q${i}_audio${index+1}" value="${num}" required> ${num}</label>
+                        `).join('')}
+                    </div>
                 </div>
-            </div>`;
+            `;
         });
-        card.innerHTML = html;
-        main.appendChild(card);
-    });
 
-    // 播放邏輯
-    function playAudio(id) {
-        const a = document.getElementById(id);
-        // 先停止所有正在播放的聲音
-        document.querySelectorAll('audio').forEach(audio => {
-            audio.pause();
-            audio.currentTime = 0;
-        });
-        a.play().catch(e => {
-            alert("播放出錯！\n請檢查檔案：" + a.getAttribute('src') + "\n(提示：請檢查 Audio 資料夾名稱及大小寫)");
-        });
+        qCard.innerHTML = `
+            <h3>第 ${i} 題</h3>
+            <div class="text-content">${questionTexts[i-1] || "（請確認文本內容）"}</div>
+            ${audioRowsHtml}
+        `;
+        container.appendChild(qCard);
     }
 
-    // 提交邏輯
-    document.getElementById('testForm').onsubmit = function(e) {
+    document.getElementById('testForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
+        btn.innerText = '正在提交數據...';
         btn.disabled = true;
-        btn.innerText = "正在加密提交，請稍候...";
 
+        const formData = new FormData(this);
         const data = {};
-        new FormData(this).forEach((v, k) => data[k] = v);
+        formData.forEach((value, key) => { data[key] = value; });
 
-        fetch(SCRIPT_URL, {
+        fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         }).then(() => {
-            alert("提交成功！感謝您的參與，辛苦了。");
-            window.scrollTo(0, 0);
+            alert('提交成功！');
             location.reload();
         }).catch(() => {
-            alert("網絡提交失敗，請檢查連線。");
+            alert('提交失敗，請檢查網路。');
             btn.disabled = false;
-            btn.innerText = "提交所有評分";
         });
-    };
+    });
 </script>
+
 </body>
 </html>
