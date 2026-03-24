@@ -62,83 +62,71 @@
         "天氣熱，出街記得帶遮、水同帽子。唔好喺太陽底行太久，容易中暑。如果覺得唔舒服就要即刻入室。", 
         "覆診時間改咗，係後日十點。請準時到診所，帶住最新嘅藥袋。遲到十五分鐘可能會取消預約。" 
     ];
-    const container = document.getElementById('questionsContainer');
 
+ const main = document.getElementById('mainContent');
+
+    // 3. 生成 15 題
     for (let i = 1; i <= 15; i++) {
-        const qCard = document.createElement('div');
-        qCard.className = 'question-card';
+        const div = document.createElement('div');
+        div.className = 'question-card';
         
-        const audioFiles = [
-            { id: `N${i}`, label: "錄音版本 1" },
-            { id: `P${i}_v1`, label: "錄音版本 2" },
-            { id: `P${i}_v2`, label: "錄音版本 3" }
-        ];
+        // 根據你的要求定義三個錄音檔名
+        const files = [`N${i}.mp3`, `P${i}_v1.mp3`, `P${i}_v2.mp3`];
+        let audioHtml = '';
 
-        let audioRowsHtml = '';
-        audioFiles.forEach((file, index) => {
-            // 注意：這裡假設資料夾名稱為 Audio (大寫 A)
-            const filePath = `Audio/${file.id}.mp3`;
-            
-            audioRowsHtml += `
-                <div class="audio-item">
-                    <div>
-                        <strong>${file.label}：</strong>
-                        <audio id="audio_${i}_${index}" preload="none">
-                            <source src="${filePath}" type="audio/mpeg">
-                        </audio>
-                        <button type="button" class="play-btn" onclick="playAudio('audio_${i}_${index}')">▶ 播放聲音</button>
-                    </div>
-                    <div class="rating-group">
-                        ${[1,2,3,4,5].map(num => `
-                            <label><input type="radio" name="q${i}_audio${index+1}" value="${num}" required> ${num}</label>
-                        `).join('')}
-                    </div>
+        files.forEach((file, idx) => {
+            const audioId = `audio_${i}_${idx}`;
+            audioHtml += `
+            <div class="audio-row">
+                <span>版本 ${idx + 1}</span>
+                <audio id="${audioId}" src="Audio/${file}"></audio>
+                <button type="button" class="play-btn" onclick="playIt('${audioId}')">▶ 播放</button>
+                <div class="rating-group">
+                    ${[1,2,3,4,5].map(n => `<label><input type="radio" name="q${i}_v${idx+1}" value="${n}" required> ${n}</label>`).join('')}
                 </div>
-            `;
+            </div>`;
         });
 
-        qCard.innerHTML = `
-            <h3>第 ${i} 題</h3>
-            <div class="text-content">${questionTexts[i-1]}</div>
-            ${audioRowsHtml}
-        `;
-        container.appendChild(qCard);
+        div.innerHTML = `<h3>第 ${i} 題</h3><div class="text-content">${texts[i-1]}</div>${audioHtml}`;
+        main.appendChild(div);
     }
 
-    function playAudio(id) {
-        const audio = document.getElementById(id);
-        audio.load(); // 強制重新載入
-        audio.play().catch(e => {
-            alert("播放失敗！\n請檢查路徑：" + audio.currentSrc + "\n錯誤訊息：" + e.message);
+    // 4. 播放函數 (放在全域確保按鈕點得到)
+    window.playIt = function(id) {
+        const a = document.getElementById(id);
+        if(!a) return alert("找不到音頻標籤");
+        
+        a.pause();
+        a.currentTime = 0;
+        
+        a.play().catch(err => {
+            alert("播放失敗！\n1. 檢查資料夾是否叫 Audio\n2. 檢查檔案名是否為 " + a.getAttribute('src') + "\n錯誤資訊：" + err.message);
         });
-    }
+    };
 
-    document.getElementById('testForm').addEventListener('submit', function(e) {
+    // 5. 提交表單
+    document.getElementById('testForm').onsubmit = function(e) {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
-        btn.innerText = '正在提交數據...';
         btn.disabled = true;
+        btn.innerText = "提交中...";
 
-        const formData = new FormData(this);
         const data = {};
-        formData.forEach((value, key) => { data[key] = value; });
+        new FormData(this).forEach((v, k) => data[k] = v);
 
-        fetch(GOOGLE_SCRIPT_URL, {
+        fetch(SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         }).then(() => {
-            alert('提交成功！感謝參與測試。');
+            alert("提交成功！");
             location.reload();
         }).catch(() => {
-            alert('提交失敗，請檢查網路連線。');
+            alert("提交失敗");
             btn.disabled = false;
         });
-    });
+    };
 </script>
-
 </body>
 </html>
-
     
