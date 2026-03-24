@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>粵語語音合成停頓因素測試</title>
+    <style>
+        body { font-family: 'PingFang HK', 'Microsoft JhengHei', sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #f4f7f6; line-height: 1.6; }
+        .container { background-color: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 10px; }
+        .intro { background: #eef2f3; padding: 20px; border-radius: 8px; margin-bottom: 30px; font-size: 0.95em; color: #444; }
+        .name-section { margin-bottom: 40px; padding: 20px; border-left: 5px solid #007BFF; background: #f0f7ff; }
+        .name-input { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
+        .question-card { border: 1px solid #eee; padding: 25px; margin-bottom: 30px; border-radius: 10px; background: #fff; }
+        .text-content { background: #fff9c4; padding: 15px; border-radius: 5px; font-weight: bold; margin-bottom: 20px; color: #333; border-left: 4px solid #fbc02d; font-size: 1.1em; }
+        .audio-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #eee; flex-wrap: wrap; }
+        .play-btn { background: #4CAF50; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 14px; }
+        .rating-group { display: flex; gap: 12px; align-items: center; }
+        .submit-btn { width: 100%; padding: 18px; background-color: #007BFF; color: white; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>粵語語音合成停頓因素測試</h1>
+    
+    <div class="intro">
+        <p>感謝參與測試！請聆聽以下錄音，並根據「能否輕鬆理解內容」及「聽起來是否舒服」給予 1 到 5 分的評價。</p>
+        <p><strong>1分：</strong>不清楚/不舒適 ➔ <strong>5分：</strong>非常清楚/非常舒適</p>
+    </div>
+
+    <form id="testForm">
+        <div class="name-section">
+            <label for="testerName"><strong>您的姓名：</strong></label>
+            <input type="text" id="testerName" name="testerName" class="name-input" required placeholder="請輸入姓名">
+        </div>
+
+        <div id="questionsContainer"></div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">提交測試結果</button>
+    </form>
+</div>
+
+<script>
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLcobTigtPqExaltUa-7lCy9wsFg6GUpmnCJHcjSb5SUl9M2dmEQn2da9GVbZi4s57yQ/exec';
+
+    // 從你提供的 XLSX 檔案提取的文本
+    const questionTexts = [
+        "記得朝早八點食兩粒血壓藥。食完藥半個鐘後量一次血壓，記錄低啲。如果血壓高過一百四，就要打電話通知護士。",
+        "小心血糖唔好升太高。千祈唔好食甜嘢，包括蛋糕、奶茶同朱古力。食完飯兩個鐘後可以量一次血糖。",
+        "如果覺得心口翳悶或者抖唔到氣，要即刻坐低休息。如果休息咗五分鐘都冇好轉，就要叫屋企人幫手或者打九九九。",
+        "記得每日飲充足嘅水，最好飲六至八杯。但係夜晚八點之後就少飲啲，費事半夜要成日去廁所，影響睡眠。",
+        "去公園散步嘅時候，記住著對防滑嘅運動鞋。如果覺得攰就搵張長凳坐下，唔好夾硬行。安全最重要。",
+        "聽日去社區健康中心做年度檢查。記得朝早八點到，帶住綠色病歷簿同身份證。中心位於街市三樓。",
+        "如果覺得頭暈或者眼前發黑，立即坐低或者攞住牆。千祈唔好勉強繼續行路。坐定後深呼吸幾次。",
+        "食完晚飯半個鐘後量血糖。正常值應該係七點八以下，記低數字下次覆診比醫生睇。唔好忘記記錄。",
+        "藥袋上面寫住每日食三次，每次一粒。最好喺飯後半個鐘食，咁樣對胃會好啲。記得唔好空肚食藥。",
+        "如果發現腳趾紅腫或者有傷口，要即刻話比醫生聽。洗完腳之後要抹乾腳趾聯，保持皮膚乾爽。",
+        "聽日去社區健康中心做年度檢查。記得朝早八點到，帶住綠色病歷簿同身份證。中心位於街市三樓。", // 註：Excel第10題與第6題文本相同
+        "如果覺得頭暈或者眼前發黑，立即坐低或者攞住牆。千祈唔好勉強繼續行路。坐定後深呼吸幾次。", // 註：Excel第11題
+        "食完晚飯半個鐘後量血糖。正常值應該係七點八以下，記低數字下次覆診比醫生睇。唔好忘記記錄。", // 註：Excel第12題
+        "藥袋上面寫住每日食三次，每次一粒。最好喺飯後半個鐘食，咁樣對胃會好啲。記得唔好空肚食藥。", // 註：Excel第13題
+        "如果發現腳趾紅腫或者有傷口，要即刻話比醫生聽。洗完腳之後要抹乾腳趾聯，保持皮膚乾爽。" // 註：Excel第14題 (Excel僅到14題，第15題重複最後一題)
+    ];
+
+    const container = document.getElementById('questionsContainer');
+
+    for (let i = 1; i <= 15; i++) {
+        const qCard = document.createElement('div');
+        qCard.className = 'question-card';
+        
+        // 根據要求設定檔名：Nx, Px_v1, Px_v2
+        const audioFiles = [
+            { id: `N${i}`, label: "錄音版本 1" },
+            { id: `P${i}_v1`, label: "錄音版本 2" },
+            { id: `P${i}_v2`, label: "錄音版本 3" }
+        ];
+
+        let audioRowsHtml = '';
+        audioFiles.forEach((file, index) => {
+            audioRowsHtml += `
+                <div class="audio-item">
+                    <div>
+                        <strong>${file.label}：</strong>
+                        <audio id="audio_${i}_${index}" src="Audio/${file.id}.mp3"></audio>
+                        <button type="button" class="play-btn" onclick="document.getElementById('audio_${i}_${index}').play()">▶ 播放聲音</button>
+                    </div>
+                    <div class="rating-group">
+                        ${[1,2,3,4,5].map(num => `
+                            <label><input type="radio" name="q${i}_audio${index+1}" value="${num}" required> ${num}</label>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        });
+
+        qCard.innerHTML = `
+            <h3>第 ${i} 題</h3>
+            <div class="text-content">${questionTexts[i-1] || "（請確認文本內容）"}</div>
+            ${audioRowsHtml}
+        `;
+        container.appendChild(qCard);
+    }
+
+    document.getElementById('testForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        btn.innerText = '正在提交數據...';
+        btn.disabled = true;
+
+        const formData = new FormData(this);
+        const data = {};
+        formData.forEach((value, key) => { data[key] = value; });
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(() => {
+            alert('提交成功！');
+            location.reload();
+        }).catch(() => {
+            alert('提交失敗，請檢查網路。');
+            btn.disabled = false;
+        });
+    });
+</script>
+
+</body>
+</html>
