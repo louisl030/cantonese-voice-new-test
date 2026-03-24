@@ -5,47 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>粵語語音合成停頓因素測試</title>
     <style>
-        body { font-family: 'PingFang HK', 'Microsoft JhengHei', sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #f4f7f6; line-height: 1.6; }
-        .container { background-color: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-        h1 { text-align: center; color: #2c3e50; margin-bottom: 10px; }
-        .intro { background: #eef2f3; padding: 20px; border-radius: 8px; margin-bottom: 30px; font-size: 0.95em; color: #444; }
-        .name-section { margin-bottom: 40px; padding: 20px; border-left: 5px solid #007BFF; background: #f0f7ff; }
-        .name-input { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
-        .question-card { border: 1px solid #eee; padding: 25px; margin-bottom: 30px; border-radius: 10px; background: #fff; }
-        .text-content { background: #fff9c4; padding: 15px; border-radius: 5px; font-weight: bold; margin-bottom: 20px; color: #333; border-left: 4px solid #fbc02d; font-size: 1.1em; }
-        .audio-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #eee; flex-wrap: wrap; }
-        .play-btn { background: #4CAF50; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 14px; }
-        .rating-group { display: flex; gap: 12px; align-items: center; }
-        .submit-btn { width: 100%; padding: 18px; background-color: #007BFF; color: white; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        body { font-family: 'PingFang HK', sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f4f7f6; }
+        .container { background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .question-card { border: 1px solid #ddd; padding: 20px; margin-bottom: 25px; border-radius: 10px; }
+        .text-content { background: #fff9c4; padding: 12px; border-radius: 5px; font-weight: bold; margin-bottom: 15px; border-left: 5px solid #fbc02d; }
+        .audio-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; flex-wrap: wrap; }
+        .play-btn { background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .rating-group { display: flex; gap: 8px; }
+        .submit-btn { width: 100%; padding: 15px; background-color: #007BFF; color: white; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>粵語語音合成停頓因素測試</h1>
-    
-    <div class="intro">
-        <p>感謝參與測試！請聆聽以下錄音，並根據「能否輕鬆理解內容」及「聽起來是否舒服」給予 1 到 5 分的評價。</p>
-        <p><strong>1分：</strong>不清楚/不舒適 ➔ <strong>5分：</strong>非常清楚/非常舒適</p>
-    </div>
+    <p>請聆聽錄音並評分（1分不舒適，5分非常舒適）：</p>
 
     <form id="testForm">
-        <div class="name-section">
-            <label for="testerName"><strong>您的姓名：</strong></label>
-            <input type="text" id="testerName" name="testerName" class="name-input" required placeholder="請輸入姓名">
+        <div style="margin-bottom: 20px; background: #f0f7ff; padding: 15px; border-radius: 8px;">
+            <label><strong>您的姓名：</strong></label>
+            <input type="text" name="testerName" required placeholder="請輸入姓名">
         </div>
 
-        <div id="questionsContainer"></div>
-    
-        <button type="submit" class="submit-btn" id="submitBtn">提交測試結果</button>
+        <div id="mainContent">
+            </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">提交所有結果</button>
     </form>
 </div>
 
 <script>
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLcobTigtPqExaltUa-7lCy9wsFg6GUpmnCJHcjSb5SUl9M2dmEQn2da9GVbZi4s57yQ/exec';
+    // ⚠️ 檢查點 1：請確保網址在引號內，且只有一行
+    const SCRIPT_URL = '你的_GOOGLE_APPS_SCRIPT_網址';
 
-    // 從你提供的 XLSX 檔案提取的文本
-    const questionTexts = [
+    const texts = [
         "記得朝早八點食兩粒血壓藥。食完藥半個鐘後量一次血壓，記錄低。如果血壓高過一百四，就要打電話通知護士。",
         "小心血糖唔好升太高。千祈唔好食甜嘢，包括蛋糕、奶茶同朱古力。食完飯兩個鐘後可以量一次血糖。",
         "醫生講咗要聽日九點去醫院覆診。記得帶住綠色病歷簿、身份證同最近七日嘅藥單。遲到可能會取消預約。",
@@ -56,14 +49,14 @@
         "慢慢行樓梯，一定要扶住欄杆。小心跌倒，尤其地面濕滑或者光線不足嘅時候。穿防滑鞋會安全啲。",
         "血壓高就要坐低休息。休息夠十分鐘再量一次，睇吓有冇回落到正常水平。如果仲高就打電話問醫生。",
         "聽日去社區健康中心做年度檢查。記得朝早八點到，帶住綠色病歷簿同身份證。中心位於街市三樓。",
-        "如果覺得頭暈或者眼前發黑，立即坐低或者攞住牆。千祈唔好勉強繼續行路。坐定後深呼吸幾次。", 
-        "食完晚飯半個鐘後量血糖。正常值應該係七點八以下，記低數字下次覆診比醫生睇。唔好忘記記錄。", 
-        "個新開嘅藥要每日三次，每次一粒。飯後食，持續一星期。食完如果皮膚出疹就要停藥。", // 
-        "天氣熱，出街記得帶遮、水同帽子。唔好喺太陽底行太久，容易中暑。如果覺得唔舒服就要即刻入室。", 
-        "覆診時間改咗，係後日十點。請準時到診所，帶住最新嘅藥袋。遲到十五分鐘可能會取消預約。" 
+        "如果覺得頭暈或者眼前發黑，立即坐低或者攞住牆。千祈唔好勉強繼續行路。坐定後深呼吸幾次。",
+        "食完晚飯半個鐘後量血糖。正常值應該係七點八以下，記低數字下次覆診比醫生睇。唔好忘記記錄。",
+        "個新開嘅藥要每日三次，每次一粒。飯後食，持續一星期。食完如果皮膚出疹就要停藥。",
+        "天氣熱，出街記得帶遮、水同帽子。唔好喺太陽底行太久，容易中暑。如果覺得唔舒服就要即刻入室。",
+        "覆診時間改咗，係後日十點。請準時到診所，帶住最新嘅藥袋。遲到十五分鐘可能會取消預約。"
     ];
 
- const main = document.getElementById('mainContent');
+    const main = document.getElementById('mainContent');
 
     // 渲染題目
     try {
