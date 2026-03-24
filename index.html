@@ -1,50 +1,224 @@
-<å!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>粵語語音合成停頓因素測試</title>
     <style>
-        body { font-family: 'PingFang HK', 'Microsoft JhengHei', sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #f4f7f6; line-height: 1.6; }
-        .container { background-color: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-        h1 { text-align: center; color: #2c3e50; margin-bottom: 10px; }
-        .intro { background: #eef2f3; padding: 20px; border-radius: 8px; margin-bottom: 30px; font-size: 0.95em; color: #444; }
-        .name-section { margin-bottom: 40px; padding: 20px; border-left: 5px solid #007BFF; background: #f0f7ff; }
-        .name-input { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
-        .question-card { border: 1px solid #eee; padding: 25px; margin-bottom: 30px; border-radius: 10px; background: #fff; }
-        .text-content { background: #fff9c4; padding: 15px; border-radius: 5px; font-weight: bold; margin-bottom: 20px; color: #333; border-left: 4px solid #fbc02d; font-size: 1.1em; }
-        .audio-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #eee; flex-wrap: wrap; }
-        .play-btn { background: #4CAF50; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 14px; }
-        .rating-group { display: flex; gap: 12px; align-items: center; }
-        .submit-btn { width: 100%; padding: 18px; background-color: #007BFF; color: white; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        :root {
+            --primary: #0066cc;
+            --primary-hover: #004d99;
+            --accent: #4caf50;
+            --bg: #f8f9fc;
+            --card-bg: #ffffff;
+            --text: #333;
+            --shadow: 0 8px 30px rgba(0,0,0,0.05);
+        }
+
+        body {
+            font-family: 'PingFang HK', 'Microsoft JhengHei', -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 { color: var(--primary); font-size: 28px; margin-bottom: 10px; }
+        
+        .intro-card {
+            background: linear-gradient(135deg, #e0f0ff 0%, #ffffff 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 6px solid var(--primary);
+            margin-bottom: 30px;
+        }
+
+        /* 用戶資訊區 */
+        .user-info {
+            background: #f0f4f8;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            display: grid;
+            gap: 20px;
+        }
+
+        .input-group label { font-weight: bold; display: block; margin-bottom: 10px; color: var(--primary); }
+        .name-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        .name-input:focus { border-color: var(--primary); outline: none; }
+
+        .age-options { display: flex; gap: 20px; }
+        .age-options label {
+            background: white;
+            padding: 10px 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: normal;
+        }
+        .age-options input { display: none; }
+        .age-options input:checked + span { color: var(--primary); font-weight: bold; }
+        .age-options label:has(input:checked) { border-color: var(--primary); background: #eef6ff; box-shadow: 0 4px 10px rgba(0,102,204,0.1); }
+
+        /* 題目卡片 */
+        .question-card {
+            background: white;
+            border: 1px solid #eee;
+            padding: 30px;
+            margin-bottom: 35px;
+            border-radius: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            transition: transform 0.3s ease;
+        }
+        .question-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+        
+        .q-title { font-size: 1.2em; font-weight: bold; color: var(--primary); margin-bottom: 15px; }
+        .text-box {
+            background: #fff9e6;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px dashed #ffd966;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+            color: #444;
+        }
+
+        /* 錄音項目 */
+        .audio-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .audio-item:last-child { border-bottom: none; }
+
+        .play-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .play-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+        .play-btn:active { transform: scale(0.95); }
+        .play-btn.playing { background: #ff9800; animation: pulse 1.5s infinite; }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 152, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0); }
+        }
+
+        .rating-stars { display: flex; gap: 8px; }
+        .rating-stars label {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ddd;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .rating-stars input { display: none; }
+        .rating-stars label:has(input:checked) { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .submit-btn {
+            width: 100%;
+            padding: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,102,204,0.2);
+            transition: all 0.3s;
+        }
+        .submit-btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        .submit-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
+
+        footer { text-align: center; margin-top: 50px; color: #888; font-size: 0.9em; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>粵語語音合成停頓因素測試</h1>
-    
-    <div class="intro">
-        <p>感謝參與測試！請聆聽以下錄音，並根據「能否輕鬆理解內容」及「聽起來是否舒服」給予 1 到 5 分的評價。</p>
-        <p><strong>1分：</strong>不清楚/不舒適 ➔ <strong>5分：</strong>非常清楚/非常舒適</p>
+    <header>
+        <h1>粵語語音合成停頓因素測試</h1>
+        <p>您的意見對我們的研究至關重要</p>
+    </header>
+
+    <div class="intro-card">
+        <strong>測試指引：</strong><br>
+        請聆聽每組句子的三個版本，並就其「理解輕鬆度」與「聽感舒適度」評分（1分最低，5分最高）。
     </div>
 
     <form id="testForm">
-        <div class="name-section">
-            <label for="testerName"><strong>您的姓名：</strong></label>
-            <input type="text" id="testerName" name="testerName" class="name-input" required placeholder="請輸入姓名">
+        <div class="user-info">
+            <div class="input-group">
+                <label>1. 您的姓名</label>
+                <input type="text" name="testerName" class="name-input" required placeholder="請輸入姓名">
+            </div>
+            <div class="input-group">
+                <label>2. 您的年齡組別</label>
+                <div class="age-options">
+                    <label><input type="radio" name="ageGroup" value="65及以上" required> <span>65 歲及以上</span></label>
+                    <label><input type="radio" name="ageGroup" value="65以下" required> <span>65 歲以下</span></label>
+                </div>
+            </div>
         </div>
 
         <div id="questionsContainer"></div>
 
-        <button type="submit" class="submit-btn" id="submitBtn">提交測試結果</button>
+        <button type="submit" class="submit-btn" id="submitBtn">提交所有測試結果</button>
     </form>
+
+    <footer>
+        <p>© 2026 粵語語音合成研究小組 感謝參與</p>
+    </footer>
 </div>
 
 <script>
+    // ⚠️ 這裡填入你的 Google 腳本網址
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLcobTigtPqExaltUa-7lCy9wsFg6GUpmnCJHcjSb5SUl9M2dmEQn2da9GVbZi4s57yQ/exec';
 
-    // 從你提供的 XLSX 檔案提取的文本
     const questionTexts = [
         "記得朝早八點食兩粒血壓藥。食完藥半個鐘後量一次血壓，記錄低。如果血壓高過一百四，就要打電話通知護士。",
         "小心血糖唔好升太高。千祈唔好食甜嘢，包括蛋糕、奶茶同朱古力。食完飯兩個鐘後可以量一次血糖。",
@@ -54,7 +228,7 @@
         "返屋企後記得飲一杯暖水。飲水後半個鐘可以食藥，唔好太急。食完藥最好坐低休息十分鐘。",
         "兩粒降血壓藥飯後食。食完記得行廿分鐘，對血管同心臟都有好處。行路時要扶住欄杆。",
         "慢慢行樓梯，一定要扶住欄杆。小心跌倒，尤其地面濕滑或者光線不足嘅時候。穿防滑鞋會安全啲。",
-        "血壓高就要坐低休息。休息夠十分鐘再量一次，睇吓有冇回落到正常水平。如果仲高就打電話問醫生。",
+        "血壓高就要坐低休息。休息夠十分鐘再量一次，睇嚇有冇回落到正常水平。如果仲高就打電話問醫生。",
         "聽日去社區健康中心做年度檢查。記得朝早八點到，帶住綠色病歷簿同身份證。中心位於街市三樓。",
         "如果覺得頭暈或者眼前發黑，立即坐低或者攞住牆。千祈唔好勉強繼續行路。坐定後深呼吸幾次。",
         "食完晚飯半個鐘後量血糖。正常值應該係七點八以下，記低數字下次覆診比醫生睇。唔好忘記記錄。",
@@ -66,65 +240,97 @@
     const container = document.getElementById('questionsContainer');
 
     for (let i = 1; i <= 15; i++) {
-        const qCard = document.createElement('div');
-        qCard.className = 'question-card';
+        const card = document.createElement('div');
+        card.className = 'question-card';
         
-        // 根據要求設定檔名：Nx, Px_v1, Px_v2
-        const audioFiles = [
-            { id: `N${i}`, label: "錄音版本 1" },
-            { id: `P${i}_v1`, label: "錄音版本 2" },
-            { id: `P${i}_v2`, label: "錄音版本 3" }
-        ];
+        // --- 核心邏輯：順序調整 ---
+        let versions;
+        if (i <= 7) {
+            // 第 1-7 題: N, v1, v2
+            versions = [
+                { file: `N${i}`, label: "版本 A" },
+                { file: `P${i}_v1`, label: "版本 B" },
+                { file: `P${i}_v2`, label: "版本 C" }
+            ];
+        } else {
+            // 第 8-15 題: v2, v1, N
+            versions = [
+                { file: `P${i}_v2`, label: "版本 A" },
+                { file: `P${i}_v1`, label: "版本 B" },
+                { file: `N${i}`, label: "版本 C" }
+            ];
+        }
 
-        let audioRowsHtml = '';
-        audioFiles.forEach((file, index) => {
-            audioRowsHtml += `
+        let audioHtml = '';
+        versions.forEach((v, idx) => {
+            const audioId = `audio_${i}_${idx}`;
+            audioHtml += `
                 <div class="audio-item">
-                    <div>
-                        <strong>${file.label}：</strong>
-                        <audio id="audio_${i}_${index}" src="Audio/${file.id}.mp3"></audio>
-                        <button type="button" class="play-btn" onclick="document.getElementById('audio_${i}_${index}').play()">▶ 播放聲音</button>
-                    </div>
-                    <div class="rating-group">
-                        ${[1,2,3,4,5].map(num => `
-                            <label><input type="radio" name="q${i}_audio${index+1}" value="${num}" required> ${num}</label>
+                    <button type="button" class="play-btn" id="btn_${audioId}" onclick="playAudio('${audioId}')">
+                        <span>▶</span> ${v.label}
+                    </button>
+                    <audio id="${audioId}" src="Audio/${v.file}.mp3" onended="markEnded('${audioId}')"></audio>
+                    <div class="rating-stars">
+                        ${[1,2,3,4,5].map(n => `
+                            <label><input type="radio" name="q${i}_v${idx+1}" value="${n}" required><span>${n}</span></label>
                         `).join('')}
                     </div>
                 </div>
             `;
         });
 
-        qCard.innerHTML = `
-            <h3>第 ${i} 題</h3>
-            <div class="text-content">${questionTexts[i-1] || "（請確認文本內容）"}</div>
-            ${audioRowsHtml}
+        card.innerHTML = `
+            <div class="q-title">第 ${i} 組測試</div>
+            <div class="text-box">${questionTexts[i-1]}</div>
+            ${audioHtml}
         `;
-        container.appendChild(qCard);
+        container.appendChild(card);
     }
 
-    document.getElementById('testForm').addEventListener('submit', function(e) {
+    // 播放邏輯
+    function playAudio(id) {
+        const allAudios = document.querySelectorAll('audio');
+        const allBtns = document.querySelectorAll('.play-btn');
+        
+        // 停止其他
+        allAudios.forEach(a => { a.pause(); a.currentTime = 0; });
+        allBtns.forEach(b => b.classList.remove('playing'));
+
+        const target = document.getElementById(id);
+        const btn = document.getElementById('btn_' + id);
+        
+        target.play();
+        btn.classList.add('playing');
+    }
+
+    function markEnded(id) {
+        document.getElementById('btn_' + id).classList.remove('playing');
+    }
+
+    // 提交邏輯
+    document.getElementById('testForm').onsubmit = function(e) {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
-        btn.innerText = '正在提交數據...';
         btn.disabled = true;
+        btn.innerText = "正在提交，請稍候...";
 
         const formData = new FormData(this);
         const data = {};
-        formData.forEach((value, key) => { data[key] = value; });
+        formData.forEach((v, k) => data[k] = v);
 
         fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         }).then(() => {
-            alert('提交成功！');
+            alert("提交成功！再次感謝您的參與。");
             location.reload();
         }).catch(() => {
-            alert('提交失敗，請檢查網路。');
+            alert("提交失敗，請檢查網路後再試。");
             btn.disabled = false;
+            btn.innerText = "提交所有測試結果";
         });
-    });
+    };
 </script>
 
 </body>
