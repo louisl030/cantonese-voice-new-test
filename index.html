@@ -62,14 +62,12 @@
         "天氣熱，出街記得帶遮、水同帽子。唔好喺太陽底行太久，容易中暑。如果覺得唔舒服就要即刻入室。", 
         "覆診時間改咗，係後日十點。請準時到診所，帶住最新嘅藥袋。遲到十五分鐘可能會取消預約。" 
     ];
-
     const container = document.getElementById('questionsContainer');
 
     for (let i = 1; i <= 15; i++) {
         const qCard = document.createElement('div');
         qCard.className = 'question-card';
         
-        // 根據要求設定檔名：Nx, Px_v1, Px_v2
         const audioFiles = [
             { id: `N${i}`, label: "錄音版本 1" },
             { id: `P${i}_v1`, label: "錄音版本 2" },
@@ -78,12 +76,17 @@
 
         let audioRowsHtml = '';
         audioFiles.forEach((file, index) => {
+            // 注意：這裡假設資料夾名稱為 Audio (大寫 A)
+            const filePath = `Audio/${file.id}.mp3`;
+            
             audioRowsHtml += `
                 <div class="audio-item">
                     <div>
                         <strong>${file.label}：</strong>
-                        <audio id="audio_${i}_${index}" src="Audio/${file.id}.mp3"></audio>
-                        <button type="button" class="play-btn" onclick="document.getElementById('audio_${i}_${index}').play()">▶ 播放聲音</button>
+                        <audio id="audio_${i}_${index}" preload="none">
+                            <source src="${filePath}" type="audio/mpeg">
+                        </audio>
+                        <button type="button" class="play-btn" onclick="playAudio('audio_${i}_${index}')">▶ 播放聲音</button>
                     </div>
                     <div class="rating-group">
                         ${[1,2,3,4,5].map(num => `
@@ -96,10 +99,18 @@
 
         qCard.innerHTML = `
             <h3>第 ${i} 題</h3>
-            <div class="text-content">${questionTexts[i-1] || "（請確認文本內容）"}</div>
+            <div class="text-content">${questionTexts[i-1]}</div>
             ${audioRowsHtml}
         `;
         container.appendChild(qCard);
+    }
+
+    function playAudio(id) {
+        const audio = document.getElementById(id);
+        audio.load(); // 強制重新載入
+        audio.play().catch(e => {
+            alert("播放失敗！\n請檢查路徑：" + audio.currentSrc + "\n錯誤訊息：" + e.message);
+        });
     }
 
     document.getElementById('testForm').addEventListener('submit', function(e) {
@@ -118,10 +129,10 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         }).then(() => {
-            alert('提交成功！');
+            alert('提交成功！感謝參與測試。');
             location.reload();
         }).catch(() => {
-            alert('提交失敗，請檢查網路。');
+            alert('提交失敗，請檢查網路連線。');
             btn.disabled = false;
         });
     });
@@ -129,3 +140,5 @@
 
 </body>
 </html>
+
+    
